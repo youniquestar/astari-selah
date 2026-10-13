@@ -6,8 +6,9 @@ This directory contains all physical CAD assemblies, structural components, fast
 ```
 cad/
 ├── assembly/
+│   ├── astari_selah_master.FCStd           # Native FreeCAD modular parametric master assembly
 │   ├── five_dof_arm_complete_assembly.step # Full master assembly with 50+ components
-│   └── freecad_5dof.FCStd                  # FreeCAD native assembly project
+│   └── freecad_5dof.FCStd                  # FreeCAD legacy assembly project
 ├── parts/
 │   ├── *.step                              # Solid models of all 8 3D printed parts
 │   └── *.stl                               # Slice-ready 3D printing meshes

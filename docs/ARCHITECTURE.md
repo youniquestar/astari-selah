@@ -57,6 +57,6 @@ The 5-DOF industrial manipulator utilizes a hybrid architecture dividing real-ti
 - Broadcasts tactile feedback on `/fsr_pressure`.
 - Listens for commanded trajectories on `/target_joint_states` and streams them to the ESP32.
 
-### 3. ROS 2 Visualization & Modeling (`five_dof_arm_description`)
-- Provides `five_dof_arm.urdf.xacro` with exact joint offsets and realistic physical materials.
+### 3. ROS 2 Visualization & Modeling (`astari_selah_description`)
+- Provides `astari_selah.urdf.xacro` with exact joint offsets and realistic physical materials.
 - Integrates with `robot_state_publisher` and RViz2 for 3D state visualization.

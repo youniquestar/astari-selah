@@ -4,7 +4,8 @@
   <name>astari_selah_description</name>
   <version>1.0.0</version>
   <description>Astari Selah: 5-DOF Articulated Robotic Manipulator ROS 2 Description, Kinematic URDF/Xacro, RViz visualization, and hardware bridge.</description>
-  <maintainer email="jeremiah@example.com">Jeremiah</maintainer>
+  <maintainer email="128410501+youniquestar@users.noreply.github.com">Jeremiah Alao</maintainer>
+  <author email="128410501+youniquestar@users.noreply.github.com">Jeremiah Alao</author>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
