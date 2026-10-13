@@ -568,6 +568,44 @@ for name in parts:
         obj.ViewObject.ShapeColor = color_map[name]
     sub_groups[sub_groups_map[name]].addObject(obj)
 
+# Load COTS Actuators and Electronics into 07_Actuators_And_Electronics
+cots_electronics = [
+    ("Servo_RDS5160_60kg", "servo_rds5160_60kg.step", (0.28, 0.28, 0.30)),
+    ("Servo_MG996R", "servo_mg996r.step", (0.28, 0.28, 0.30)),
+    ("Sensor_FSR402_Tactile", "sensor_fsr402_tactile.step", (0.18, 0.78, 0.52))
+]
+for label, filename, col in cots_electronics:
+    c_path = os.path.join("{COMPONENTS_DIR}", filename)
+    if os.path.exists(c_path):
+        shape = Part.Shape()
+        shape.read(c_path)
+        obj = master_doc.addObject("Part::Feature", label)
+        obj.Shape = shape
+        obj.Label = label
+        if hasattr(obj, "ViewObject") and obj.ViewObject:
+            obj.ViewObject.ShapeColor = col
+        sub_groups["07_Actuators_And_Electronics"].addObject(obj)
+
+# Load Bearings and Fasteners into 08_Bearings_And_Fasteners
+cots_hardware = [
+    ("Bearing_6812ZZ_Turntable", os.path.join("{COMPONENTS_DIR}", "bearing_6812zz_turntable.step"), (0.82, 0.84, 0.86)),
+    ("Bearing_608ZZ_Pivot", os.path.join("{COMPONENTS_DIR}", "bearing_608zz_counter_pivot.step"), (0.82, 0.84, 0.86)),
+    ("Bolt_M8x30_Hex", os.path.join("{FASTENERS_DIR}", "bolt_m8x30_hex.step"), (0.75, 0.75, 0.75)),
+    ("Nut_M8_Nyloc", os.path.join("{FASTENERS_DIR}", "nut_m8_nyloc.step"), (0.75, 0.75, 0.75)),
+    ("Screw_M3x16_SHCS", os.path.join("{FASTENERS_DIR}", "screw_m3x16_shcs.step"), (0.75, 0.75, 0.75)),
+    ("Screw_M4x16_SHCS", os.path.join("{FASTENERS_DIR}", "screw_m4x16_shcs.step"), (0.75, 0.75, 0.75))
+]
+for label, fpath, col in cots_hardware:
+    if os.path.exists(fpath):
+        shape = Part.Shape()
+        shape.read(fpath)
+        obj = master_doc.addObject("Part::Feature", label)
+        obj.Shape = shape
+        obj.Label = label
+        if hasattr(obj, "ViewObject") and obj.ViewObject:
+            obj.ViewObject.ShapeColor = col
+        sub_groups["08_Bearings_And_Fasteners"].addObject(obj)
+
 master_doc.recompute()
 master_doc.saveAs(os.path.join(ASM_DIR, "Selah_Master.FCStd"))
 print("  ✓ Saved FreeCAD Master: Selah_Master.FCStd")
