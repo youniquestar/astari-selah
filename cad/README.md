@@ -5,10 +5,17 @@ This directory contains all physical CAD assemblies, structural components, fast
 ## Folder Overview
 ```
 cad/
+├── Selah/                              # Modular FreeCAD CAD subsystem with 'Selah' folder hierarchy
+│   ├── assembly/Selah_Master.FCStd     # Master FreeCAD project with root 'Selah' group
+│   ├── assembly/Selah_Assembly.step    # Master full assembly STEP solid
+│   ├── parts/*.FCStd                   # Dedicated FreeCAD project for each individual part
+│   ├── parts/*.step, *.stl             # Modular solid STEPs and slice-ready STLs
+│   ├── components/*.step               # COTS actuators, bearings, and sensors
+│   └── scripts/build_selah_cad.py      # Automated headless FreeCAD rebuild script
 ├── assembly/
-│   ├── astari_selah_master.FCStd           # Native FreeCAD modular parametric master assembly
-│   ├── five_dof_arm_complete_assembly.step # Full master assembly with 50+ components
-│   └── freecad_5dof.FCStd                  # FreeCAD legacy assembly project
+│   ├── astari_selah_master.FCStd       # Native FreeCAD assembly
+│   ├── five_dof_arm_complete_assembly.step # Full master assembly
+│   └── freecad_5dof.FCStd              # Legacy assembly project
 ├── parts/
 │   ├── *.step                              # Solid models of all 8 3D printed parts
 │   └── *.stl                               # Slice-ready 3D printing meshes

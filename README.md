@@ -46,7 +46,7 @@
 - **Closed-Loop Tactile Sensing**: Interlink FSR 402 force-sensitive resistor with onboard Exponential Moving Average (EMA) filtering for grasp detection.
 - **Dual-Rail Isolated Power Distribution**: High-power XL4016 (8A, 6.8V–7.2V) for servo transients and low-noise LM2596 (2A, 5.0V) for logic.
 - **Native ROS 2 Humble Integration**: Xacro-parameterized URDF model, RViz2 visualizers with interactive GUI joint sliders, and asynchronous 50Hz serial bridge.
-- **100% Native Parametric FreeCAD Models**: Complete master assembly (`astari_selah_master.FCStd`), STEP solids, and slice-ready STL files.
+- **100% Modular Native FreeCAD Models**: Complete master assembly ([Selah_Master.FCStd](cad/Selah/assembly/Selah_Master.FCStd)) structured under the root `Selah` folder hierarchy with 8 modular sub-assemblies, individual `.FCStd` projects for every part in [`cad/Selah/`](cad/Selah/), STEP solids, and slice-ready STL meshes.
 
 ---
 
@@ -303,7 +303,7 @@ echo "source ~/ros2_ws/install/setup.bash" >> ~/.bashrc
 
 ### Phase 3: 3D Printing & Mechanical Assembly
 
-All slice-ready STL files are located in [`cad/parts/`](cad/parts/).
+All slice-ready STL files are located in [`cad/Selah/parts/`](cad/Selah/parts/) and [`cad/parts/`](cad/parts/).
 
 #### Slicing Settings Table
 | Part Name | Recommended Filament | Infill % & Pattern | Wall Count / Perimeters | Layer Height | Support |
