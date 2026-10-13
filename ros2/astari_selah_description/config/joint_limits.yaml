@@ -1,0 +1,46 @@
+# Software Joint Limits for 5-DOF Manipulator
+joint_limits:
+  joint1_base_yaw:
+    has_position_limits: true
+    min_position: 0.1745   # 10.0 degrees
+    max_position: 2.9671   # 170.0 degrees
+    has_velocity_limits: true
+    max_velocity: 2.0944   # 120.0 deg/s
+    has_effort_limits: true
+    max_effort: 6.0        # 60 kg-cm (~5.88 N-m)
+
+  joint2_shoulder_pitch:
+    has_position_limits: true
+    min_position: 0.7854   # 45.0 degrees
+    max_position: 2.5307   # 145.0 degrees
+    has_velocity_limits: true
+    max_velocity: 2.0944   # 120.0 deg/s
+    has_effort_limits: true
+    max_effort: 6.0        # 60 kg-cm
+
+  joint3_elbow_pitch:
+    has_position_limits: true
+    min_position: 0.5236   # 30.0 degrees
+    max_position: 2.7925   # 160.0 degrees (Never 180° to avoid singularity)
+    has_velocity_limits: true
+    max_velocity: 3.1416   # 180.0 deg/s
+    has_effort_limits: true
+    max_effort: 1.1        # 11 kg-cm (~1.08 N-m)
+
+  joint4_wrist_pitch:
+    has_position_limits: true
+    min_position: 0.3491   # 20.0 degrees
+    max_position: 2.7925   # 160.0 degrees
+    has_velocity_limits: true
+    max_velocity: 3.1416   # 180.0 deg/s
+    has_effort_limits: true
+    max_effort: 1.1        # 11 kg-cm
+
+  joint5_gripper_left:
+    has_position_limits: true
+    min_position: 0.2618   # 15.0 degrees (closed)
+    max_position: 1.3090   # 75.0 degrees (70mm open)
+    has_velocity_limits: true
+    max_velocity: 2.0944   # 120.0 deg/s
+    has_effort_limits: true
+    max_effort: 1.1        # 11 kg-cm
