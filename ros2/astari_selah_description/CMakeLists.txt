@@ -22,6 +22,7 @@ install(
 install(
   PROGRAMS
     scripts/esp32_bridge.py
+    scripts/test_arm_control_execution.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -5,17 +5,6 @@
   <xacro:include filename="materials.xacro" />
   <xacro:include filename="astari_selah.gazebo.xacro" />
 
-  <!-- Macro for inertial box -->
-  <xacro:macro name="box_inertial" params="mass x y z">
-    <inertial>
-      <origin xyz="0 0 ${z/2}" rpy="0 0 0"/>
-      <mass value="${mass}"/>
-      <inertia ixx="${(mass/12.0) * (y*y + z*z)}" ixy="0.0" ixz="0.0"
-               iyy="${(mass/12.0) * (x*x + z*z)}" iyz="0.0"
-               izz="${(mass/12.0) * (x*x + y*y)}"/>
-    </inertial>
-  </xacro:macro>
-
   <!-- World Frame Connection -->
   <link name="world"/>
 
@@ -26,184 +15,229 @@
   </joint>
 
   <!-- ========================================================================= -->
-  <!-- 1. BASE LINK & ENCLOSURE (PETG, Solid 5mm Floor, 180mm Dia, 85mm Height)   -->
+  <!-- 1. BASE LINK (Fused E.R.A Anti-Tipping Base + CHIMERA D-Profile Turret)    -->
   <!-- ========================================================================= -->
   <link name="base_link">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://astari_selah_description/meshes/visual/base_enclosure.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://astari_selah_description/meshes/visual/base_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="cad_black"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://astari_selah_description/meshes/collision/base_enclosure.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://astari_selah_description/meshes/collision/base_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
-    <xacro:box_inertial mass="1.2" x="0.18" y="0.18" z="0.085"/>
+    <inertial>
+      <origin xyz="0.0 -0.065 0.045" rpy="0 0 0"/>
+      <mass value="1.354"/>
+      <inertia ixx="0.00712" ixy="0.0" ixz="0.0"
+               iyy="0.00845" iyz="0.00031"
+               izz="0.01254"/>
+    </inertial>
   </link>
 
   <!-- ========================================================================= -->
-  <!-- 2. JOINT 1: BASE YAW (DSSERVO RDS5160, 60kg.cm, Z-Axis, 10° to 170°)     -->
+  <!-- 2. JOINT 1: BASE YAW (NEMA 17 + 10:1 Planetary Gearbox, 10° to 170°)       -->
   <!-- ========================================================================= -->
   <joint name="joint1_base_yaw" type="revolute">
     <parent link="base_link"/>
     <child link="link1_shoulder_yoke"/>
-    <origin xyz="0 0 0.085" rpy="0 0 0"/>
+    <origin xyz="0 0 0.090" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
     <!-- Limits: 10° = 0.1745 rad, 170° = 2.9671 rad, Home = 90° = 1.5708 rad -->
-    <limit lower="0.1745" upper="2.9671" effort="6.0" velocity="2.0"/>
-    <dynamics damping="0.5" friction="0.1"/>
+    <limit lower="0.1745" upper="2.9671" effort="15.0" velocity="2.0"/>
+    <dynamics damping="0.8" friction="0.2"/>
   </joint>
 
+  <!-- Link 1: Shoulder Yoke (Dual-Bearing Moment Decoupling, H = 70mm pitch elevation) -->
   <link name="link1_shoulder_yoke">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://astari_selah_description/meshes/visual/shoulder_yoke.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://astari_selah_description/meshes/visual/shoulder_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="cad_blue"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://astari_selah_description/meshes/collision/shoulder_yoke.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://astari_selah_description/meshes/collision/shoulder_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
-    <xacro:box_inertial mass="0.35" x="0.14" y="0.14" z="0.070"/>
+    <inertial>
+      <origin xyz="-0.00083 0.0 0.02613" rpy="0 0 0"/>
+      <mass value="0.9232"/>
+      <inertia ixx="0.001320" ixy="0.0" ixz="3.355e-05"
+               iyy="0.001925" iyz="0.0"
+               izz="0.001385"/>
+    </inertial>
   </link>
 
   <!-- ========================================================================= -->
-  <!-- 3. JOINT 2: SHOULDER PITCH (DSSERVO RDS5160, Y-Axis, 45° to 145°)         -->
+  <!-- 3. JOINT 2: SHOULDER PITCH (NEMA 17 + 10:1 Planetary Gearbox, 0° to 90°)   -->
   <!-- ========================================================================= -->
   <joint name="joint2_shoulder_pitch" type="revolute">
     <parent link="link1_shoulder_yoke"/>
     <child link="link2_upper_arm"/>
-    <origin xyz="0 0 0.063" rpy="0 0 0"/>
+    <origin xyz="0 0 0.070" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <!-- Limits: 45° = 0.7854 rad, 145° = 2.5307 rad, Home = 90° = 1.5708 rad -->
-    <limit lower="0.7854" upper="2.5307" effort="6.0" velocity="2.0"/>
-    <dynamics damping="0.5" friction="0.1"/>
+    <limit lower="0.0" upper="1.5708" effort="18.0" velocity="1.5"/>
+    <dynamics damping="1.0" friction="0.3"/>
   </joint>
 
-  <!-- Link 2: Upper Arm (PLA+ 35% Gyroid infill, 220mm Axis-to-Axis) -->
+  <!-- Link 2: Upper Arm (E.R.A-Derived Ribbed Spar, 280.0 mm Center-to-Center) -->
   <link name="link2_upper_arm">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://astari_selah_description/meshes/visual/upper_arm.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://astari_selah_description/meshes/visual/upper_arm_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="cad_black"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://astari_selah_description/meshes/collision/upper_arm.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://astari_selah_description/meshes/collision/upper_arm_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
-    <xacro:box_inertial mass="0.28" x="0.055" y="0.045" z="0.220"/>
+    <inertial>
+      <origin xyz="-0.0006 0.0 0.13976" rpy="0 0 0"/>
+      <mass value="1.0131"/>
+      <inertia ixx="0.013884" ixy="0.0" ixz="8.488e-05"
+               iyy="0.013914" iyz="0.0"
+               izz="0.000773"/>
+    </inertial>
   </link>
 
   <!-- ========================================================================= -->
-  <!-- 4. JOINT 3: ELBOW PITCH (TowerPro MG996R, 11kg.cm, Y-Axis, 30° to 160°)   -->
+  <!-- 4. JOINT 3: ELBOW PITCH (NEMA 17 + 5:1 Planetary Gearbox, 0° to 120°)      -->
   <!-- ========================================================================= -->
   <joint name="joint3_elbow_pitch" type="revolute">
     <parent link="link2_upper_arm"/>
     <child link="link3_forearm"/>
-    <origin xyz="0 0 0.220" rpy="0 0 0"/>
+    <origin xyz="0 0 0.280" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <!-- Limits: 30° = 0.5236 rad, 160° = 2.7925 rad (Avoid 180° singularity) -->
-    <limit lower="0.5236" upper="2.7925" effort="1.1" velocity="3.0"/>
-    <dynamics damping="0.3" friction="0.05"/>
+    <limit lower="0.0" upper="2.0944" effort="8.0" velocity="2.5"/>
+    <dynamics damping="0.5" friction="0.15"/>
   </joint>
 
-  <!-- Link 3: Forearm (PLA+ Cylindrical 42mm OD, 180mm Axis-to-Axis) -->
+  <!-- Link 3: Forearm (CHIMERA Casing + Vision Shelf, 230.0 mm Center-to-Center) -->
   <link name="link3_forearm">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://astari_selah_description/meshes/visual/forearm.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://astari_selah_description/meshes/visual/forearm_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="cad_blue"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://astari_selah_description/meshes/collision/forearm.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://astari_selah_description/meshes/collision/forearm_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
-    <xacro:box_inertial mass="0.22" x="0.042" y="0.042" z="0.180"/>
+    <inertial>
+      <origin xyz="0.0 0.00318 0.11621" rpy="0 0 0"/>
+      <mass value="0.4873"/>
+      <inertia ixx="0.002847" ixy="0.0" ixz="0.0"
+               iyy="0.002821" iyz="-3.896e-05"
+               izz="0.000185"/>
+    </inertial>
   </link>
 
   <!-- ========================================================================= -->
-  <!-- 5. JOINT 4: WRIST PITCH (TowerPro MG996R, Y-Axis, 20° to 160°)            -->
+  <!-- ESP32-CAM OPTICAL FRAME (Mounted at 210mm on Forearm, 20° downward tilt)  -->
+  <!-- ========================================================================= -->
+  <link name="camera_link"/>
+
+  <joint name="camera_joint" type="fixed">
+    <parent link="link3_forearm"/>
+    <child link="camera_link"/>
+    <origin xyz="0 0.022 0.210" rpy="0.3491 0 0"/>
+  </joint>
+
+  <!-- ========================================================================= -->
+  <!-- 5. JOINT 4: WRIST PITCH (TowerPro MG996R, -90° to +90°)                   -->
   <!-- ========================================================================= -->
   <joint name="joint4_wrist_pitch" type="revolute">
     <parent link="link3_forearm"/>
     <child link="link4_wrist"/>
-    <origin xyz="0 0 0.180" rpy="0 0 0"/>
+    <origin xyz="0 0 0.230" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <!-- Limits: 20° = 0.3491 rad, 160° = 2.7925 rad -->
-    <limit lower="0.3491" upper="2.7925" effort="1.1" velocity="3.0"/>
+    <limit lower="-1.5708" upper="1.5708" effort="1.2" velocity="3.0"/>
     <dynamics damping="0.2" friction="0.05"/>
   </joint>
 
-  <!-- Link 4: Wrist Assembly (PETG 40x35mm, 60mm Axis-to-Axis) -->
+  <!-- Link 4: Wrist Link (90.0 mm Center-to-Center) -->
   <link name="link4_wrist">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://astari_selah_description/meshes/visual/wrist.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://astari_selah_description/meshes/visual/wrist_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="cad_black"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://astari_selah_description/meshes/collision/wrist.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://astari_selah_description/meshes/collision/wrist_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
-    <xacro:box_inertial mass="0.12" x="0.040" y="0.035" z="0.060"/>
+    <inertial>
+      <origin xyz="0.0 0.0 0.04616" rpy="0 0 0"/>
+      <mass value="0.2025"/>
+      <inertia ixx="0.000215" ixy="0.0" ixz="0.0"
+               iyy="0.000212" iyz="0.0"
+               izz="6.282e-05"/>
+    </inertial>
   </link>
 
   <!-- ========================================================================= -->
-  <!-- 6. GRIPPER BASE ATTACHMENT (Fixed Bracket at Z = 60mm on Wrist)           -->
+  <!-- 6. GRIPPER BASE ATTACHMENT (Fixed Bracket at Z = 90mm on Wrist)           -->
   <!-- ========================================================================= -->
   <joint name="gripper_base_joint" type="fixed">
     <parent link="link4_wrist"/>
     <child link="gripper_base"/>
-    <origin xyz="0 0 0.060" rpy="0 0 0"/>
+    <origin xyz="0 0 0.090" rpy="0 0 0"/>
   </joint>
 
   <link name="gripper_base">
     <visual>
-      <origin xyz="0 0 -0.060" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://astari_selah_description/meshes/visual/gripper_base.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://astari_selah_description/meshes/visual/gripper_base_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="cad_blue"/>
     </visual>
     <collision>
-      <origin xyz="0 0 -0.060" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://astari_selah_description/meshes/collision/gripper_base.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://astari_selah_description/meshes/collision/gripper_base_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
-    <xacro:box_inertial mass="0.10" x="0.05" y="0.05" z="0.06"/>
+    <inertial>
+      <origin xyz="0.0 0.0 0.00115" rpy="0 0 0"/>
+      <mass value="0.0742"/>
+      <inertia ixx="2.518e-05" ixy="0.0" ixz="0.0"
+               iyy="4.321e-05" iyz="0.0"
+               izz="5.102e-05"/>
+    </inertial>
   </link>
 
   <!-- ========================================================================= -->
-  <!-- 7. JOINT 5: GRIPPER LEFT FINGER (MG996R Geared, 15° closed to 75° open)   -->
+  <!-- 7. JOINT 5: GRIPPER LEFT FINGER (MG996R Geared, 80mm Max Opening)         -->
   <!-- ========================================================================= -->
   <joint name="joint5_gripper_left" type="revolute">
     <parent link="gripper_base"/>
     <child link="gripper_left_finger"/>
-    <origin xyz="-0.0125 0.0217 0.0455" rpy="0 0 0"/>
+    <origin xyz="-0.018 0 0.010" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <!-- Limits: 15° (0.2618 rad) closed to 75° (1.3090 rad) open (70mm jaw gap) -->
-    <limit lower="0.2618" upper="1.3090" effort="1.1" velocity="2.0"/>
+    <!-- Travel angle: 0.0 (closed) to 0.7854 rad (45° open = 80mm span) -->
+    <limit lower="0.0" upper="0.7854" effort="1.2" velocity="2.0"/>
     <dynamics damping="0.1" friction="0.05"/>
   </joint>
 
@@ -221,7 +255,13 @@
         <mesh filename="package://astari_selah_description/meshes/collision/gripper_left_finger.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
-    <xacro:box_inertial mass="0.04" x="0.03" y="0.09" z="0.01"/>
+    <inertial>
+      <origin xyz="0.00030 0.0 -0.00297" rpy="0 0 0"/>
+      <mass value="0.0201"/>
+      <inertia ixx="1.584e-05" ixy="0.0" ixz="0.0"
+               iyy="1.539e-05" iyz="0.0"
+               izz="9.078e-07"/>
+    </inertial>
   </link>
 
   <!-- ========================================================================= -->
@@ -230,10 +270,10 @@
   <joint name="joint5_gripper_right" type="revolute">
     <parent link="gripper_base"/>
     <child link="gripper_right_finger"/>
-    <origin xyz="0.0125 0.0217 0.0455" rpy="0 0 0"/>
+    <origin xyz="0.018 0 0.010" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
     <mimic joint="joint5_gripper_left" multiplier="-1.0" offset="0.0"/>
-    <limit lower="-1.3090" upper="-0.2618" effort="1.1" velocity="2.0"/>
+    <limit lower="-0.7854" upper="0.0" effort="1.2" velocity="2.0"/>
     <dynamics damping="0.1" friction="0.05"/>
   </joint>
 
@@ -251,29 +291,35 @@
         <mesh filename="package://astari_selah_description/meshes/collision/gripper_right_finger.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
-    <xacro:box_inertial mass="0.04" x="0.03" y="0.09" z="0.01"/>
+    <inertial>
+      <origin xyz="-0.00027 0.0 -0.00277" rpy="0 0 0"/>
+      <mass value="0.0202"/>
+      <inertia ixx="1.596e-05" ixy="0.0" ixz="0.0"
+               iyy="1.551e-05" iyz="0.0"
+               izz="9.134e-07"/>
+    </inertial>
   </link>
 
   <!-- ========================================================================= -->
-  <!-- 9. FSR 402 PRESSURE SENSOR FRAME (Recessed 1.0mm in left finger pad)       -->
+  <!-- 9. FSR 402 TACTILE PRESSURE SENSOR FRAME (In left finger pad recess)      -->
   <!-- ========================================================================= -->
   <link name="fsr_sensor_frame"/>
 
   <joint name="fsr_sensor_joint" type="fixed">
     <parent link="gripper_left_finger"/>
     <child link="fsr_sensor_frame"/>
-    <origin xyz="0.005 0.060 0.005" rpy="0 0 0"/>
+    <origin xyz="-0.006 0.0 0.035" rpy="0 0 0"/>
   </joint>
 
   <!-- ========================================================================= -->
-  <!-- 10. TOOL CENTER POINT (TCP) AT CLOSED JAW TIP                             -->
+  <!-- 10. TOOL CENTER POINT (TCP) AT 100mm CLOSED CLAW TIP                      -->
   <!-- ========================================================================= -->
   <link name="tcp_link"/>
 
   <joint name="tcp_joint" type="fixed">
     <parent link="gripper_base"/>
     <child link="tcp_link"/>
-    <origin xyz="0 0.030 0.090" rpy="0 0 0"/>
+    <origin xyz="0 0 0.100" rpy="0 0 0"/>
   </joint>
 
 </robot>
