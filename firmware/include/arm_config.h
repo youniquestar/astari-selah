@@ -8,7 +8,7 @@
 
 /**
  * ============================================================================
- * ASTARI SELAH: 5-DOF INDUSTRIAL ROBOTIC ARM - EMBEDDED CONFIGURATION
+ * ASTARI SELAH: 70 CM HYBRID STEPPER-SERVO ROBOTIC ARM - EMBEDDED CONFIGURATION
  * ============================================================================
  */
 
@@ -29,73 +29,79 @@ constexpr uint8_t PIN_I2C_SCL          = 22;
 constexpr uint8_t PIN_FSR_ANALOG       = 34; // ADC1 Channel 6 (Input Only)
 constexpr uint8_t PIN_STATUS_LED       = 2;  // Onboard blue LED
 
+// Stepper Step/Dir/Enable Pin Definitions (TMC2209 / TB6600 Drivers)
+constexpr uint8_t PIN_STEPPER_ENABLE   = 32; // Shared Active-Low Driver Enable
+constexpr uint8_t PIN_J1_STEP          = 25; // Base Yaw Stepper Step
+constexpr uint8_t PIN_J1_DIR           = 26; // Base Yaw Stepper Dir
+constexpr uint8_t PIN_J2_STEP          = 27; // Shoulder Pitch Stepper Step
+constexpr uint8_t PIN_J2_DIR           = 14; // Shoulder Pitch Stepper Dir
+constexpr uint8_t PIN_J3_STEP          = 12; // Elbow Pitch Stepper Step
+constexpr uint8_t PIN_J3_DIR           = 13; // Elbow Pitch Stepper Dir
+
+// Stepper Microstep Calibration (1.8° steppers @ 16 microsteps = 3200 steps/rev)
+// Joint 1: 10:1 Planetary Gearbox -> 32,000 steps / 360° = 88.889 steps/deg
+constexpr float STEPS_PER_DEG_J1       = 88.8889f;
+// Joint 2: 10:1 Planetary Gearbox -> 32,000 steps / 360° = 88.889 steps/deg
+constexpr float STEPS_PER_DEG_J2       = 88.8889f;
+// Joint 3: 5:1 Planetary Gearbox  -> 16,000 steps / 360° = 44.444 steps/deg
+constexpr float STEPS_PER_DEG_J3       = 44.4444f;
+
 // ----------------------------------------------------------------------------
-// 3. I2C PCA9685 PWM DRIVER CONFIGURATION
+// 3. I2C PCA9685 PWM DRIVER CONFIGURATION (For Distal J4 & J5 Servos)
 // ----------------------------------------------------------------------------
 constexpr uint8_t  PCA9685_I2C_ADDR    = 0x40;
-constexpr float    PWM_FREQUENCY_HZ    = 50.0f; // Standard analog/digital servo rate (20ms)
+constexpr float    PWM_FREQUENCY_HZ    = 50.0f; // 20ms period
 constexpr uint32_t PCA9685_RESOLUTION  = 4096;  // 12-bit PWM
 
-// Calibrated microsecond pulse widths for RDS5160 & MG996R servos (0° to 180°)
 constexpr uint16_t SERVO_MIN_PULSE_US  = 500;   // 0 degrees (~102 counts at 50Hz)
 constexpr uint16_t SERVO_MAX_PULSE_US  = 2500;  // 180 degrees (~512 counts at 50Hz)
 
-// Servo Channel Mapping on PCA9685 Breakout
-constexpr uint8_t CH_BASE_YAW          = 0; // DSSERVO RDS5160
-constexpr uint8_t CH_SHOULDER_PITCH    = 1; // DSSERVO RDS5160
-constexpr uint8_t CH_ELBOW_PITCH       = 2; // TowerPro MG996R
-constexpr uint8_t CH_WRIST_PITCH       = 3; // TowerPro MG996R
-constexpr uint8_t CH_GRIPPER           = 4; // TowerPro MG996R
+constexpr uint8_t CH_WRIST_PITCH       = 0; // TowerPro MG996R (J4)
+constexpr uint8_t CH_GRIPPER           = 1; // TowerPro MG996R (J5)
 
 // ----------------------------------------------------------------------------
 // 4. KINEMATIC DIMENSIONS & REACH (in millimeters)
-// Total Extended Reach = 220 + 180 + 60 + 90 = 550.0 mm
+// Total Articulated Reach = 280 + 230 + 90 + 100 = 700.0 mm
 // ----------------------------------------------------------------------------
-constexpr float LENGTH_BASE_HEIGHT_MM  = 85.0f;  // Base enclosure platform
-constexpr float LENGTH_SHOULDER_YOKE_MM= 63.0f;  // Yoke axis offset above platform
-constexpr float LENGTH_BASE_TO_SHOULDER= 148.0f; // Global Z height of shoulder pivot
-constexpr float LENGTH_UPPER_ARM_MM    = 220.0f; // Link 1 (Upper Arm axis-to-axis)
-constexpr float LENGTH_FOREARM_MM      = 180.0f; // Link 2 (Forearm axis-to-axis)
-constexpr float LENGTH_WRIST_MM        = 60.0f;  // Link 3 (Wrist axis-to-axis)
-constexpr float LENGTH_GRIPPER_MM      = 90.0f;  // End-effector closed jaw tip
-constexpr float MAX_ARTICULATED_REACH  = 550.0f; // 55 cm physical maximum
+constexpr float LENGTH_BASE_HEIGHT_MM  = 90.0f;  // Base enclosure platform (d1)
+constexpr float LENGTH_SHOULDER_YOKE_MM= 70.0f;  // Yoke axis offset above platform
+constexpr float LENGTH_BASE_TO_SHOULDER= 160.0f; // Global Z height of shoulder pivot
+constexpr float LENGTH_UPPER_ARM_MM    = 280.0f; // Link 1: Upper Arm axis-to-axis (a2)
+constexpr float LENGTH_FOREARM_MM      = 230.0f; // Link 2: Forearm axis-to-axis (a3)
+constexpr float LENGTH_WRIST_MM        = 90.0f;  // Link 3: Wrist axis-to-axis (a4)
+constexpr float LENGTH_GRIPPER_MM      = 100.0f; // Link 4: End-effector closed jaw tip (a5)
 
-// ----------------------------------------------------------------------------
-// 5. SOFTWARE ROTATIONAL LIMITS (in Degrees)
-// ----------------------------------------------------------------------------
-// Base Yaw: 10° to 170° (Default home: 90°)
-constexpr float LIMIT_BASE_YAW_MIN_DEG       = 10.0f;
-constexpr float LIMIT_BASE_YAW_MAX_DEG       = 170.0f;
-constexpr float HOME_BASE_YAW_DEG            = 90.0f;
-
-// Shoulder Pitch: 45° to 145° (Default home: 90°)
-constexpr float LIMIT_SHOULDER_PITCH_MIN_DEG = 45.0f;
-constexpr float LIMIT_SHOULDER_PITCH_MAX_DEG = 145.0f;
-constexpr float HOME_SHOULDER_PITCH_DEG      = 90.0f;
-
-// Elbow Pitch: 30° to 160° (Never 180° to avoid kinematic singularity)
-constexpr float LIMIT_ELBOW_PITCH_MIN_DEG    = 30.0f;
-constexpr float LIMIT_ELBOW_PITCH_MAX_DEG    = 160.0f;
-constexpr float HOME_ELBOW_PITCH_DEG         = 90.0f;
-
-// Wrist Pitch: 20° to 160° (Default home: 90°)
-constexpr float LIMIT_WRIST_PITCH_MIN_DEG    = 20.0f;
-constexpr float LIMIT_WRIST_PITCH_MAX_DEG    = 160.0f;
-constexpr float HOME_WRIST_PITCH_DEG         = 90.0f;
-
-// Gripper: 15° (closed, 0mm jaw gap) to 75° (fully open, 70mm jaw gap)
-constexpr float LIMIT_GRIPPER_MIN_DEG        = 15.0f;
-constexpr float LIMIT_GRIPPER_MAX_DEG        = 75.0f;
-constexpr float HOME_GRIPPER_DEG             = 45.0f;
-
-// Motion Profiling: Maximum angular speed (°/sec) to avoid mechanical shock
-constexpr float MAX_SERVO_VELOCITY_DPS       = 120.0f; // Degrees per second
+constexpr float MAX_WORKSPACE_RADIUS_MM= 700.0f;
+constexpr float MIN_WORKSPACE_RADIUS_MM= 120.0f;
 
 // ----------------------------------------------------------------------------
-// 6. FSR 402 PRESSURE SENSOR CALIBRATION
+// 5. JOINT SOFTWARE BOUNDARIES & CALIBRATED TRAVEL LIMITS (in Degrees)
 // ----------------------------------------------------------------------------
-constexpr uint32_t ADC_MAX_VALUE             = 4095;   // 12-bit ESP32 ADC
-constexpr float    FSR_FILTER_ALPHA          = 0.25f;  // Exponential Moving Average weight
-constexpr float    FSR_TOUCH_THRESHOLD_RAW   = 150.0f; // Noise floor threshold
+constexpr float LIMIT_MIN_BASE_YAW     = 10.0f;
+constexpr float LIMIT_MAX_BASE_YAW     = 170.0f;
+constexpr float HOME_BASE_YAW_DEG      = 90.0f;
+
+constexpr float LIMIT_MIN_SHOULDER     = 0.0f;   // Horizontal forward
+constexpr float LIMIT_MAX_SHOULDER     = 90.0f;  // Vertical upright
+constexpr float HOME_SHOULDER_PITCH_DEG= 90.0f;
+
+constexpr float LIMIT_MIN_ELBOW        = 0.0f;   // Straight extension
+constexpr float LIMIT_MAX_ELBOW        = 120.0f; // Bent
+constexpr float HOME_ELBOW_PITCH_DEG   = 45.0f;
+
+constexpr float LIMIT_MIN_WRIST        = -90.0f;
+constexpr float LIMIT_MAX_WRIST        = 90.0f;
+constexpr float HOME_WRIST_PITCH_DEG   = 0.0f;
+
+constexpr float LIMIT_MIN_GRIPPER      = 0.0f;   // Closed (0 mm gap)
+constexpr float LIMIT_MAX_GRIPPER      = 45.0f;  // Fully Open (80 mm gap)
+constexpr float HOME_GRIPPER_DEG       = 0.0f;
+
+// ----------------------------------------------------------------------------
+// 6. FSR 402 FORCE SENSING RESISTOR CALIBRATION
+// ----------------------------------------------------------------------------
+constexpr uint16_t FSR_ADC_NO_LOAD     = 50;
+constexpr uint16_t FSR_ADC_MAX_LOAD    = 4095;
+constexpr float    FSR_MAX_FORCE_NEWTONS= 20.0f;
 
 } // namespace ArmConfig
